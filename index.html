@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Student Task Tracker</title>
+  <style>
+    /* Reset */
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+   /* background: #db9999; */
+      background-image: "Screenshot 2025-05-13 233601.png";
+      color: #6b0b0b;
+      line-height: 1.5;
+      margin: 0;
+      padding: 1rem 2rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      overflow-x: hidden;
+      user-select: none;
+    }
+    /* Doodling background */
+    body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('Screenshot 2025-05-13 233601.png');
+  background-repeat: repeat;
+  background-size: auto;
+  z-index: -1;
+  opacity: 0.5;
+}
+
+
+    header {
+      width: 100%;
+      max-width: 900px;
+      padding: 2rem 1rem 1rem;
+      text-align: center;
+      border-bottom: 3px solid #2a407e;
+      background-color: white;
+      border-radius: 10px 10px 0 0;
+      box-shadow: 0 3px 12px rgb(0 0 0 / 0.15);
+      user-select: text;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+      color: #2a407e;
+      font-weight: 900;
+      letter-spacing: 1.8px;
+      text-shadow: 1px 1px 7px rgb(202 124 124 / 0.5);
+      flex-grow: 1;
+      user-select: text;
+      text-align: center;
+    }
+
+    /* Profile dropdown container */
+    .profile-dropdown {
+      position: absolute;
+      top: 2rem;
+      right: -4rem;
+      user-select: none;
+      width: 220px;
+      font-weight: 600;
+    }
+    .profile-dropdown button {
+      background: transparent;
+      padding: 0.3rem 0.7rem;
+      font-size: 1rem;
+      cursor: pointer;
+      font-weight: 700;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      justify-content: center;
+      user-select: none;
+    }
+    .profile-dropdown button:hover,
+    .profile-dropdown button:focus {
+      background-color: #2a407e;
+      color: white;
+      outline: none;
+    }
+
+    /* User photo circle */
+    .user-photo {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #ddd;
+      object-fit: cover;
+      border: 1.5px solid #2a407e;
+      transition: box-shadow 0.3s ease;
+    }
+    .profile-dropdown button:hover .user-photo,
+    .profile-dropdown button:focus .user-photo {
+      box-shadow: 0 0 8px #2a407eaa;
+    }
+
+    /* Dropdown menu */
+    .profile-dropdown ul {
+      list-style-type: none;
+      padding: 0.3rem 0;
+      margin-left: 0;
+      background: white;
+      border: 2px solid #2a407e;
+      border-radius: 6px;
+      box-shadow: 0 4px 10px rgba(192, 198, 215, 0.2);
+      position: absolute;
+      left: 10px;
+      top: 10px;
+      width: 220px;
+      display: none;
+      z-index: 1000;
+    }
+    .profile-dropdown.show ul {
+      display: block;
+    }
+    .profile-dropdown ul li {
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      font-weight: 600;
+      color: #2a407e;
+      user-select: none;
+      transition: background-color 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1rem;
+      outline: none;
+    }
+    .profile-dropdown ul li:hover,
+    .profile-dropdown ul li:focus {
+      background-color: #2a407e;
+      color: white;
+      outline: none;
+    }
+    .profile-dropdown ul li svg {
+      fill: currentColor;
+      width: 18px;
+      height: 18px;
+    }
+    .visually-hidden {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0,0,0,0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+    }
+
+    main {
+      width: 100%;
+      max-width: 900px;
+      padding: 1.5rem 1.5rem 3rem;
+      background-color: white;
+      border-radius: 0 0 10px 10px;
+      box-shadow: 0 8px 18px rgb(0 0 0 / 0.15);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Page sections spacing */
+    .section-header {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #2a407e;
+      border-bottom: 3px solid #2a407e;
+      padding-bottom: 0.3rem;
+      margin-top: 2rem;
+      margin-bottom: 1.5rem;
+      user-select: text;
+      width: 100%;
+    }
+
+    /* Container for form and tasks horizontally + piechart + pomodoro */
+    .content-container {
+      display: flex;
+      gap: 2rem;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    /* Form styling */
+    .task-form-section {
+      flex: 1 1 320px;
+      background: #fff;
+      padding: 1.75rem 2rem;
+      border-radius: 12px;
+      box-shadow: 0 6px 16px rgb(0 0 0 / 0.1);
+      user-select: none;
+      transition: box-shadow 0.3s ease;
+      position: relative;
+      min-width: 280px;
+    }
+    .task-form-section:hover {
+      box-shadow: 0 8px 26px rgb(0 0 0 / 0.15);
+    }
+
+    form label {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 1.2rem;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: #444;
+      user-select: text;
+    }
+
+    form input[type="text"],
+    form input[type="date"],
+    form select {
+      padding: 0.65rem;
+      border-radius: 8px;
+      border: 2px solid #ccc;
+      font-size: 1rem;
+      margin-top: 0.35rem;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    form input[type="text"]:focus,
+    form input[type="date"]:focus,
+    form select:focus {
+      border-color: #2a407e;
+      box-shadow: 0 0 10px #2a407eaa;
+      outline: none;
+    }
+
+    button[type="submit"] {
+      background: #2a407e;
+      color: white;
+      padding: 0.75rem 2.25rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 1.1rem;
+      transition: background-color 0.3s ease, transform 0.15s ease;
+      user-select: none;
+      display: block;
+      margin-top: 0.5rem;
+      box-shadow: 0 4px 12px rgb(42 64 126 / 0.5);
+    }
+
+    button[type="submit"]:hover {
+      background: #1f3562;
+      transform: scale(1.05);
+      box-shadow: 0 6px 18px rgb(31 53 98 / 0.7);
+    }
+
+    /* Task lists container */
+    .task-list-section {
+      flex: 2 1 540px;
+      display: flex;
+      gap: 1.8rem;
+      flex-wrap: wrap;
+      min-width: 300px;
+      flex-direction: column;
+    }
+
+    /* Individual priority box */
+    .task-lists-wrapper {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+    .task-list {
+      background: #fff;
+      padding: 1.2rem 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 5px 14px rgb(0 0 0 / 0.1);
+      flex-grow: 1;
+      min-width: 150px;
+      max-width: 100%;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+      position: relative;
+      transition: box-shadow 0.3s ease;
+      max-height: 380px;
+      overflow-y: auto;
+    }
+    .task-list:hover {
+      box-shadow: 0 8px 22px rgb(0 0 0 / 0.2);
+    }
+
+    /* Different colors and border for each priority */
+    .low-priority {
+      color: #28a745;
+      border-top: 5px solid #28a745;
+    }
+    .medium-priority {
+      color: #ffc107;
+      border-top: 5px solid #ffc107;
+    }
+    .high-priority {
+      color: #dc3545;
+      border-top: 5px solid #dc3545;
+    }
+
+    .task-list h3 {
+      margin-top: 0;
+      padding-bottom: 0.5rem;
+      font-weight: 700;
+      text-align: center;
+      user-select: text;
+      font-size: 1.3rem;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      background: white;
+      z-index: 1;
+    }
+
+    /* Individual task styling */
+    .task-item {
+      margin-bottom: 1rem;
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f9f9f9;
+      border-left: 8px solid currentColor;
+      cursor: default;
+      animation: popIn 0.35s ease forwards;
+      box-shadow: 0 3px 8px rgb(0 0 0 / 0.12);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      user-select: text;
+      position: relative;
+      gap: 8px;
+    }
+
+    .task-item:hover {
+      transform: scale(1.06);
+      box-shadow: 0 8px 20px rgb(0 0 0 / 0.25);
+      z-index: 3;
+    }
+
+    .task-name {
+      font-weight: 700;
+      font-size: 1.1rem;
+      flex-grow: 1;
+      word-break: break-word;
+      padding-right: 10px;
+      line-height: 1.3;
+    }
+
+    .task-deadline {
+      font-style: italic;
+      color: #555;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      flex-shrink: 0;
+      user-select: none;
+      position: relative;
+      margin-right: 10px;
+      min-width: 110px;
+      text-align: center;
+    }
+
+    /* Tooltip for deadline on hover */
+    .task-deadline::after {
+      content: attr(data-full);
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 3px 7px;
+      border-radius: 5px;
+      font-size: 0.75rem;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+      margin-bottom: 4px;
+      user-select: none;
+      z-index: 10;
+    }
+    .task-deadline:hover::after {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .task-remove-btn {
+      background: transparent;
+      border: none;
+      color: #dc3545;
+      cursor: pointer;
+      font-size: 1.5rem;
+      font-weight: 900;
+      margin-left: 0.25rem;
+      padding: 0 0.3rem;
+      transition: color 0.3s ease, transform 0.15s ease;
+      flex-shrink: 0;
+      line-height: 1;
+      user-select: none;
+      filter: drop-shadow(0px 0px 0 transparent);
+      will-change: transform;
+      outline-offset: 2px;
+    }
+    .task-remove-btn:hover {
+      color: #a71d2a;
+      transform: scale(1.3);
+      filter: drop-shadow(0 0 4px #ff0000aa);
+    }
+    .task-remove-btn:focus-visible {
+      outline: 2px solid #dc3545;
+      outline-offset: 3px;
+    }
+
+    /* Mark done checkbox */
+    .task-done-checkbox {
+      margin-right: 10px;
+      cursor: pointer;
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      accent-color: #2a407e;
+      user-select: none;
+      transition: transform 0.15s ease;
+    }
+    .task-done-checkbox:hover {
+      transform: scale(1.1);
+    }
+
+    /* Done task style */
+    .done .task-name {
+      color: #999;
+      text-decoration: line-through;
+      font-style: italic;
+    }
+
+    .done .task-deadline {
+      color: #999;
+    }
+
+    /* Pop in animation for new tasks */
+    @keyframes popIn {
+      0% {
+        opacity: 0;
+        transform: scale(0.85);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    /* Pie Chart container */
+    .piechart-container {
+      margin-top: 2rem;
+      width: 350px;
+      height:350px;
+      align-self: center;
+      user-select: none;
+      box-shadow: 0 6px 16px rgba(17, 38, 64, 0.1);
+      border-radius: 20px;
+      background-color: white;
+      padding: 1.5rem 2rem;
+      flex-shrink: 0;
+    }
+    .piechart-container h3 {
+      margin-top: 0;
+      font-size: 1.8rem;
+      color: #2a407e;
+      display: flex;
+      text-align: center;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 1rem;
+      font-weight: 700;
+      user-select: text;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Student Task Tracker</h1>
+    <div class="profile-dropdown" tabindex="-1" aria-haspopup="true" aria-expanded="false" aria-label="User Profile Menu">
+      <button id="profile-button" aria-controls="profile-menu" aria-haspopup="true" aria-expanded="false">
+        <img src="" alt="User Photo" class="user-photo" id="user-photo" aria-hidden="true" />
+        Profile ▼
+      </button>
+      <ul id="profile-menu" role="menu" tabindex="-1">
+        <li role="menuitem" tabindex="-1" id="view-profile">View Profile</li>
+        <li role="menuitem" tabindex="-1" id="account-settings"> Account Settings</li>
+        <li role="menuitem" tabindex="-1" id="edit-photo"> Edit Photo</li>
+        <li role="menuitem" tabindex="-1" id="pomodoro-cycle">Pomodoro Cycle</li>
+      </li>
+      </ul>
+    </div>
+  </header>
+
+  <main>
+    <div class="content-container" aria-label="Task Manager and Task Lists">
+      <!-- Form section -->
+      <section class="task-form-section" aria-labelledby="add-new-task-header" aria-live="polite" aria-atomic="true">
+        <div id="add-new-task-header" class="section-header">Add New Task</div>
+        <form id="task-form" autocomplete="off" novalidate>
+          <label for="task-name">
+            Task Name:
+            <input type="text" id="task-name" name="task-name" required placeholder="Enter task name" aria-required="true" />
+          </label>
+
+          <label for="task-deadline">
+            Deadline:
+            <input type="date" id="task-deadline" name="task-deadline" required aria-required="true" />
+          </label>
+
+          <label for="task-priority">
+            Priority:
+            <select id="task-priority" name="task-priority" required aria-required="true" >
+              <option value="" disabled selected>Select priority</option>
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
+            </select>
+          </label>
+
+          <button type="submit" aria-label="Add Task">Add Task</button>
+        </form>
+      </section>
+
+      <!-- Task lists -->
+      <section class="task-list-section" aria-label="Your Tasks">
+        <div class="section-header">Your Tasks</div>
+        <div class="task-lists-wrapper">
+          <div class="task-list low-priority" id="low-priority-tasks" tabindex="0" aria-live="polite" aria-label="Low Priority Tasks" role="list">
+            <h3>Low Priority</h3>
+          </div>
+          <div class="task-list medium-priority" id="medium-priority-tasks" tabindex="0" aria-live="polite" aria-label="Medium Priority Tasks" role="list">
+            <h3>Medium Priority</h3>
+          </div>
+          <div class="task-list high-priority" id="high-priority-tasks" tabindex="0" aria-live="polite" aria-label="High Priority Tasks" role="list">
+            <h3>High Priority</h3>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="piechart-container" aria-label="Task Completion Chart" role="region" aria-live="polite" aria-atomic="true">
+      <h3><u>Completion Ratio</u></h3>
+      <canvas id="taskPieChart" width="250" height = "250" aria-describedby="chartDesc"></canvas>
+      <p id="chartDesc" class="visually-hidden">Pie chart showing percentage of completed and pending tasks.</p>
+    </div>
+  </main>
+
+  <!-- Visually hidden class for screen readers -->
+  <style>
+    .visually-hidden {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0,0,0,0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+    }
+  </style>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+    // Profile dropdown toggle and accessibility
+    const profileDropdown = document.querySelector('.profile-dropdown');
+    const profileButton = document.getElementById('profile-button');
+    const profileMenu = document.getElementById('profile-menu');
+    const userPhoto = document.getElementById('user-photo');
+    document.getElementById("pomodoro-cycle").addEventListener("click", function () {
+  window.location.href = "pomodoro.html";
+
+});
+
+    function loadUserPhoto() {
+      const photo = localStorage.getItem('userPhoto');
+      if (photo) {
+        userPhoto.src = photo;
+        userPhoto.alt = 'User Photo';
+      } else {
+        // default icon as SVG string as data URL for placeholder
+        userPhoto.src = 'data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjMkE0MDdFIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCI+PHBhdGggZD0iTTEyIDEyYzIuMTQgMCA0LTEuODYgNC00cy0xLjg2LTQtNC00LTQgMS44Ni00IDQgMS44NiA0IDQgNHpNNiAxNWExIDIgMCAwMSAxIDEuMzNGNyAxOGEyIDIgMCAwMS0xLTIuNjcgMS4xNSAxLjE1IDAgMDEtMSAwIDEgMiAwIDAwMS41OSAxaDEyVjE5bC0xLjUgMS41LTEyLTYtMS41LTEuNXoiLz48L3N2Zz4=';
+        userPhoto.alt = 'Default User Icon';
+      }
+    }
+    loadUserPhoto();
+
+    profileButton.addEventListener('click', () => {
+      const isExpanded = profileDropdown.classList.toggle('show');
+      profileButton.setAttribute('aria-expanded', isExpanded);
+      if (isExpanded) {
+        profileMenu.focus();
+      }
+    });
+
+    // Close dropdown if click outside or Escape pressed
+    document.addEventListener('click', (e) => {
+      if (!profileDropdown.contains(e.target)) {
+        profileDropdown.classList.remove('show');
+        profileButton.setAttribute('aria-expanded', 'false');
+      }
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        profileDropdown.classList.remove('show');
+        profileButton.setAttribute('aria-expanded', 'false');
+        profileButton.focus();
+      }
+    });
+
+    // Dropdown item handlers
+    document.getElementById('view-profile').addEventListener('click', () => {
+      window.location.href="view.html";
+    });
+    document.getElementById('account-settings').addEventListener('click', () => {
+     window.location.href ="profile.html";
+    });
+
+    document.getElementById('edit-photo').addEventListener('click', () => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.click();
+      input.onchange = () => {
+        if (input.files.length > 0) {
+          const file = input.files[0];
+          const reader = new FileReader();
+          reader.onload = () => {
+            userPhoto.src = reader.result;
+            userPhoto.alt = 'User Photo';
+            localStorage.setItem('userPhoto', reader.result);
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+      profileDropdown.classList.remove('show');
+      profileButton.setAttribute('aria-expanded', 'false');
+    });
+
+    // Tasks and UI handling
+    const taskForm = document.getElementById('task-form');
+    const lowPriorityList = document.getElementById('low-priority-tasks');
+    const mediumPriorityList = document.getElementById('medium-priority-tasks');
+    const highPriorityList = document.getElementById('high-priority-tasks');
+
+    let tasks = [];
+
+    // Pie chart setup
+    const ctx = document.getElementById('taskPieChart').getContext('2d');
+    let pieChart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+       //labels: ['Done', 'Pending'],
+        datasets: [{
+          label: 'Tasks Status',
+          data: [10, 20, 30],
+          backgroundColor: ['#28a745', '#dc3545'],
+          borderColor: '#fff',
+          borderWidth: 1,
+          hoverOffset: 10,
+          spacing: 1,
+          cutout: '70%'
+        }]
+      },
+      options: {
+        responsive: false,
+        
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              font: {
+                size: 4
+              }
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: ctx => `${ctx.label}: ${ctx.parsed} task${ctx.parsed !== 1 ? 's' : ''}`
+            }
+          }
+        }
+      }
+    });
+
+    function updatePieChart() {
+      const doneCount = tasks.filter(t => t.done).length;
+      const pendingCount = tasks.length - doneCount;
+      pieChart.data.datasets[0].data = [doneCount, pendingCount];
+      pieChart.update();
+    }
+
+    function formatDate(dateString) {
+      if (!dateString) return '';
+      const dateObj = new Date(dateString + 'T00:00:00'); // avoid timezone issues
+      const options = { year: 'numeric', month: 'short', day: 'numeric' };
+      return dateObj.toLocaleDateString(undefined, options);
+    }
+
+    window.onload = () => {
+      const savedTasks = localStorage.getItem('tasks');
+      if (savedTasks) {
+        tasks = JSON.parse(savedTasks);
+        renderAllTasks();
+      }
+    };
+
+    function saveTasks() {
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+
+    function renderTask(task) {
+      const taskItem = document.createElement('div');
+      taskItem.classList.add('task-item');
+      if (task.done) {
+        taskItem.classList.add('done');
+      }
+
+      let colorClass = '';
+      switch (task.priority) {
+        case 'Low':
+          colorClass = 'low-priority';
+          break;
+        case 'Medium':
+          colorClass = 'medium-priority';
+          break;
+        case 'High':
+          colorClass = 'high-priority';
+          break;
+      }
+      taskItem.classList.add(colorClass);
+
+      const formattedDate = formatDate(task.deadline);
+
+      taskItem.innerHTML = `
+        <input type="checkbox" class="task-done-checkbox" ${task.done ? 'checked' : ''} aria-label="Mark task '${task.name}' as done">
+        <span class="task-name" title="${task.name}">${task.name}</span>
+        <span class="task-deadline" data-full="${task.deadline}">${formattedDate}</span>
+        <button class="task-remove-btn" title="Delete Task" aria-label="Delete task '${task.name}'">×</button>
+      `;
+
+      // Checkbox toggle for done
+      taskItem.querySelector('.task-done-checkbox').addEventListener('change', e => {
+        task.done = e.target.checked;
+        if (task.done) taskItem.classList.add('done');
+        else taskItem.classList.remove('done');
+        saveTasks();
+        updatePieChart();
+        announceLiveRegion(`Task "${task.name}" marked as ${task.done ? 'done' : 'pending'}.`);
+      });
+
+      // Delete button with animation then removal
+      taskItem.querySelector('.task-remove-btn').addEventListener('click', () => {
+        taskItem.style.transform = 'scale(0)';
+        taskItem.style.opacity = '0';
+        setTimeout(() => {
+          taskItem.remove();
+        }, 250);
+        tasks = tasks.filter(t => t.id !== task.id);
+        saveTasks();
+        updatePieChart();
+        announceLiveRegion(`Task "${task.name}" deleted.`);
+      });
+
+      if (task.priority === 'Low') {
+        lowPriorityList.appendChild(taskItem);
+      } else if (task.priority === 'Medium') {
+        mediumPriorityList.appendChild(taskItem);
+      } else {
+        highPriorityList.appendChild(taskItem);
+      }
+    }
+
+    function clearAllTaskLists() {
+      [lowPriorityList, mediumPriorityList, highPriorityList].forEach(container => {
+        container.querySelectorAll('.task-item').forEach(e => e.remove());
+      });
+    }
+
+    function renderAllTasks() {
+      clearAllTaskLists();
+      tasks.forEach(renderTask);
+      updatePieChart();
+    }
+
+    // Live region for screen reader announcements
+    const liveRegion = document.createElement('div');
+    liveRegion.setAttribute('aria-live', 'polite');
+    liveRegion.setAttribute('aria-atomic', 'true');
+    liveRegion.style.position = 'absolute';
+    liveRegion.style.width = '1px';
+    liveRegion.style.height = '1px';
+    liveRegion.style.margin = '-1px';
+    liveRegion.style.border = '0';
+    liveRegion.style.padding = '0';
+    liveRegion.style.overflow = 'hidden';
+    liveRegion.style.clip = 'rect(0,0,0,0)';
+    liveRegion.style.whiteSpace = 'nowrap';
+    liveRegion.style.userSelect = 'none';
+    document.body.appendChild(liveRegion);
+
+    function announceLiveRegion(message) {
+      liveRegion.textContent = '';
+      setTimeout(() => {
+        liveRegion.textContent = message;
+      }, 100);
+    }
+
+    taskForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const taskNameInput = document.getElementById('task-name');
+      const taskDeadlineInput = document.getElementById('task-deadline');
+      const taskPriorityInput = document.getElementById('task-priority');
+
+      const taskName = taskNameInput.value.trim();
+      const taskDeadline = taskDeadlineInput.value;
+      const taskPriority = taskPriorityInput.value;
+
+      if (!taskName || !taskDeadline || !taskPriority) {
+        alert("Please fill in all the fields");
+        taskNameInput.focus();
+        return;
+      }
+
+      const newTask = {
+        id: Date.now(),
+        name: taskName,
+        deadline: taskDeadline,
+        priority: taskPriority,
+        done: false
+      };
+
+      tasks.push(newTask);
+      saveTasks();
+      renderAllTasks();
+
+      taskForm.reset();
+      taskNameInput.focus();
+      announceLiveRegion(`Task "${taskName}" added with ${taskPriority} priority due on ${formatDate(taskDeadline)}.`);
+    });
+
+  </script>
+</body>
+</html>
