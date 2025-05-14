@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Profile Settings</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
+  /* Base styling and transitions */
+  body {
+    margin: 0;
+    font-family: 'Montserrat', sans-serif;
+    background: linear-gradient(135deg, #d0e7f9 0%, #f9d0e2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
+    color: #4a6fa5;
+    transition: background 0.4s ease, color 0.4s ease;
+  }
+
+  .settings-container {
+    background: rgba(255 255 255 / 0.95);
+    border-radius: 20px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    padding: 40px 50px;
+    max-width: 460px;
+    width: 100%;
+    position: relative;
+    transition: background-color 0.4s ease;
+  }
+
+  .floral-decoration {
+    position: absolute;
+    top: -40px;
+    right: -40px;
+    width: 120px;
+    height: 120px;
+    background: radial-gradient(circle at center, #f9d0e2, transparent 70%);
+    border-radius: 50%;
+    filter: blur(15px);
+    z-index: 0;
+    transition: background 0.4s ease;
+  }
+
+  h1 {
+    color: #b45a82;
+    margin-bottom: 28px;
+    font-weight: 700;
+    font-size: 2.6rem;
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    letter-spacing: 0.04em;
+    transition: color 0.4s ease;
+  }
+
+  form {
+    position: relative;
+    z-index: 1;
+  }
+
+  label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #4a6fa5;
+    transition: color 0.4s ease;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #f9d0e2;
+    border-radius: 15px;
+    font-size: 1rem;
+    color: #b45a82;
+    font-family: 'Montserrat', sans-serif;
+    outline: none;
+    transition: border-color 0.3s ease, color 0.4s ease, background-color 0.4s ease, box-shadow 0.3s ease;
+    resize: vertical;
+    min-height: 42px;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.02);
+  }
+
+  input[type="text"]:focus,
+  input[type="email"]:focus,
+  textarea:focus {
+    border-color: #4a6fa5;
+    box-shadow: 0 0 8px 2px rgba(74,111,165,0.3);
+  }
+
+  textarea {
+    min-height: 90px;
+  }
+
+  input.valid {
+    border-color: #3a9d3a !important;
+    box-shadow: 0 0 8px 2px rgba(58, 157, 58, 0.4);
+  }
+
+  input.invalid {
+    border-color: #d05858 !important;
+    box-shadow: 0 0 8px 2px rgba(208, 88, 88, 0.5);
+  }
+
+  .avatar-section {
+    margin: 24px 0 35px;
+    text-align: center;
+  }
+
+  .avatar-preview {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #b45a82;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 12px rgba(180, 90, 130, 0.45);
+    transition: border-color 0.4s ease;
+  }
+
+  input[type="file"] {
+    display: none;
+  }
+
+  .upload-label {
+    cursor: pointer;
+    color: #4a6fa5;
+    font-weight: 700;
+    background: #f9d0e2;
+    padding: 10px 22px;
+    border-radius: 30px;
+    box-shadow: 0 4px 10px rgba(184, 90, 122, 0.25);
+    display: inline-block;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    user-select: none;
+    user-drag: none;
+  }
+
+  .upload-label:hover,
+  .upload-label:focus {
+    background: #4a6fa5;
+    color: #f9d0e2;
+    box-shadow: 0 6px 15px rgba(74, 111, 165, 0.7);
+    outline: none;
+  }
+
+  .toggles {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 34px;
+  }
+
+  .toggle-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    position: relative;
+  }
+
+  .toggle-label {
+    font-weight: 600;
+    color: #4a6fa5;
+    transition: color 0.4s ease;
+    user-select: none;
+  }
+
+  /* Tooltip styling */
+  .toggle-group:hover .tooltip,
+  .toggle-group:focus-within .tooltip {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .tooltip {
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(74,111,165,0.9);
+    color: #f9d0e2;
+    padding: 5px 10px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    user-select: none;
+    z-index: 10;
+  }
+
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+  }
+
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #f9d0e2;
+    border-radius: 34px;
+    transition: 0.4s;
+    box-shadow: 0 2px 6px rgba(184, 90, 122, 0.3);
+  }
+
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 18px; width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: #b45a82;
+    border-radius: 50%;
+    transition: 0.4s;
+  }
+
+  .switch input:checked + .slider {
+    background-color: #4a6fa5;
+    box-shadow: 0 4px 10px rgba(74, 111, 165, 0.6);
+  }
+
+  .switch input:checked + .slider:before {
+    transform: translateX(26px);
+    background-color: #f9d0e2;
+  }
+
+  .buttons {
+    text-align: center;
+  }
+
+  button {
+    background: #4a6fa5;
+    color: #f9d0e2;
+    border: none;
+    padding: 14px 50px;
+    margin: 0 10px;
+    font-size: 1.12rem;
+    font-weight: 700;
+    border-radius: 35px;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(74, 111, 165, 0.85);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    user-select: none;
+    position: relative;
+    overflow: hidden;
+  }
+
+  button:disabled,
+  button[disabled]{
+    background: #a1b4d6;
+    cursor: default;
+    box-shadow: none;
+  }
+
+  button:hover:not(:disabled),
+  button:focus:not(:disabled) {
+    background: #314d75;
+    box-shadow: 0 8px 24px rgba(49, 77, 117, 0.9);
+    outline: none;
+  }
+
+  /* Spinner inside button */
+  .spinner {
+    border: 3px solid rgba(255,255,255,0.5);
+    border-top: 3px solid #f9d0e2;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    animation: spin 0.8s linear infinite;
+    position: absolute;
+    top: 50%;
+    left: 18px;
+    transform: translateY(-50%);
+    display: none;
+  }
+
+  button.loading .spinner {
+    display: block;
+  }
+
+  @keyframes spin {
+    0% { transform: translateY(-50%) rotate(0deg);}
+    100% { transform: translateY(-50%) rotate(360deg);}
+  }
+
+  .message {
+    margin-top: 15px;
+    font-weight: 600;
+    font-size: 1.05rem;
+    text-align: center;
+    color: #4a6fa5;
+    min-height: 1.4em;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    user-select: none;
+  }
+
+  .message.show {
+    opacity: 1;
+  }
+
+  /* Character counter for bio */
+  .char-counter {
+    text-align: right;
+    font-size: 0.85rem;
+    color: #b45a82;
+    margin-top: 4px;
+    user-select: none;
+  }
+
+  /* Dark Mode Styles */
+  body.dark {
+    background: linear-gradient(135deg, #e8deff 0%, #dcd0ff 100%);
+    color: #2c2340;
+  }
+
+  body.dark .settings-container {
+    background: rgba(255 255 255 / 0.95);
+  }
+
+  body.dark .floral-decoration {
+    background: radial-gradient(circle at center, #dbbad7, transparent 70%);
+  }
+
+  body.dark h1,
+  body.dark label,
+  body.dark .toggle-label {
+    color: #7a4c86;
+  }
+
+  body.dark input[type="text"],
+  body.dark input[type="email"],
+  body.dark textarea {
+    background-color: #f8f5ff;
+    color: #4a2a6a;
+    border-color: #d4bbff;
+  }
+
+  body.dark input[type="text"]:focus,
+  body.dark input[type="email"]:focus,
+  body.dark textarea:focus {
+    border-color: #7a4c86;
+  }
+
+  body.dark input.valid {
+    border-color: #4a7a39 !important;
+    box-shadow: 0 0 8px 2px rgba(74, 122, 57, 0.4);
+  }
+
+  body.dark input.invalid {
+    border-color: #a14b4b !important;
+    box-shadow: 0 0 8px 2px rgba(161, 75, 75, 0.5);
+  }
+
+  body.dark .avatar-preview {
+    border-color: #7a4c86;
+  }
+
+  body.dark .upload-label {
+    background: #dbbad7;
+    color: #4a2a6a;
+    box-shadow: 0 4px 10px rgba(122, 76, 134, 0.25);
+  }
+
+  body.dark .upload-label:hover,
+  body.dark .upload-label:focus {
+    background: #7a4c86;
+    color: #f8f5ff;
+    box-shadow: 0 6px 15px rgba(122, 76, 134, 0.6);
+  }
+
+  body.dark .switch input:checked + .slider {
+    background-color: #7a4c86;
+    box-shadow: 0 4px 10px rgba(122, 76, 134, 0.6);
+  }
+
+  body.dark button {
+    background: #7a4c86;
+    color: #f8f5ff;
+    box-shadow: 0 6px 15px rgba(122, 76, 134, 0.7);
+  }
+
+  body.dark button:hover:not(:disabled),
+  body.dark button:focus:not(:disabled) {
+    background: #5a3363;
+    box-shadow: 0 8px 20px rgba(90, 51, 99, 0.85);
+  }
+
+  body.dark .message {
+    color: #7a4c86;
+  }
+</style>
+</head>
+<body>
+  <div class="settings-container" role="main" aria-label="Profile settings">
+    <div class="floral-decoration"></div>
+    <h1>Profile Settings</h1>
+    <form id="profileForm" novalidate>
+      <label for="nameInput">Full Name</label>
+      <input type="text" id="nameInput" name="name" placeholder="Your full name" required maxlength="50" aria-required="true" autocomplete="name" />
+
+      <label for="emailInput">Email Address</label>
+      <input type="email" id="emailInput" name="email" placeholder="you@example.com" required aria-required="true" autocomplete="email" />
+      <small id="emailFeedback" style="display:none; font-size:0.85rem; margin-top:4px;"></small>
+
+      <label for="bioInput">Bio <span class="char-counter" id="bioCounter">0 / 250</span></label>
+      <textarea id="bioInput" name="bio" placeholder="Tell us something about yourself..." maxlength="250" rows="5" spellcheck="true"></textarea>
+
+      <div class="avatar-section">
+        <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Avatar preview" class="avatar-preview" id="avatarPreview" />
+        <br />
+        <label for="avatarInput" class="upload-label" tabindex="0" aria-describedby="avatarDesc">Upload Avatar</label>
+        <input type="file" id="avatarInput" name="avatar" accept="image/*" aria-label="Upload your avatar picture" />
+        <div id="avatarDesc" class="sr-only">Choose an image file to upload as your profile avatar</div>
+      </div>
+
+      <div class="toggles">
+        <div class="toggle-group" tabindex="0" aria-describedby="notifTooltip" role="group" aria-label="Enable notifications toggle">
+          <span class="toggle-label">Enable Notifications</span>
+          <label class="switch">
+            <input type="checkbox" id="notificationsToggle" />
+            <span class="slider"></span>
+          </label>
+          <div class="tooltip" id="notifTooltip">Toggle to receive notifications</div>
+        </div>
+        <div class="toggle-group" tabindex="0" aria-describedby="darkTooltip" role="group" aria-label="Toggle dark mode">
+          <span class="toggle-label">Dark Mode</span>
+          <label class="switch">
+            <input type="checkbox" id="darkModeToggle" />
+            <span class="slider"></span>
+          </label>
+          <div class="tooltip" id="darkTooltip">Toggle dark/light theme</div>
+        </div>
+      </div>
+
+      <div class="buttons">
+        <button type="submit" id="saveBtn" disabled>
+          <div class="spinner" aria-hidden="true"></div> Save
+        </button>
+        <button type="reset" id="resetBtn">Reset</button>
+      </div>
+      <div class="message" id="formMessage" role="alert" aria-live="polite"></div>
+    </form>
+  </div>
+
+  <script>
+    (() => {
+      const avatarInput = document.getElementById('avatarInput');
+      const avatarPreview = document.getElementById('avatarPreview');
+      const profileForm = document.getElementById('profileForm');
+      const formMessage = document.getElementById('formMessage');
+      const darkModeToggle = document.getElementById('darkModeToggle');
+      const body = document.body;
+
+      const nameInput = profileForm.name;
+      const emailInput = profileForm.email;
+      const bioInput = document.getElementById('bioInput');
+      const bioCounter = document.getElementById('bioCounter');
+      const emailFeedback = document.getElementById('emailFeedback');
+      const saveBtn = document.getElementById('saveBtn');
+
+      // Helper: Validate email using regex
+      const validateEmail = (email) => {
+        const pattern = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+        return pattern.test(email);
+      };
+
+      // Check if all required fields are valid
+      function checkFormValidity() {
+        const nameValid = nameInput.value.trim().length > 0 && nameInput.value.trim().length <= 50;
+        const emailVal = emailInput.value.trim();
+        const emailValid = validateEmail(emailVal);
+        return nameValid && emailValid;
+      }
+
+      // Enable or disable Save button based on validity
+      function updateSaveButton() {
+        if (checkFormValidity()) {
+          saveBtn.disabled = false;
+        } else {
+          saveBtn.disabled = true;
+        }
+      }
+
+      // Avatar preview handler
+      avatarInput.addEventListener('change', () => {
+        const file = avatarInput.files[0];
+        if (file && file.type.startsWith('image/')) {
+          const reader = new FileReader();
+          reader.onload = e => {
+            avatarPreview.src = e.target.result;
+          };
+          reader.readAsDataURL(file);
+        } else {
+          avatarPreview.src = "https://cdn-icons-png.flaticon.com/512/149/149071.png"; // default avatar
+        }
+      });
+
+      // Bio character counter update
+      bioInput.addEventListener('input', () => {
+        const length = bioInput.value.length;
+        bioCounter.textContent = `${length} / 250`;
+      });
+
+      // Real-time email validation feedback
+      emailInput.addEventListener('input', () => {
+        const val = emailInput.value.trim();
+        if (val.length === 0) {
+          emailInput.classList.remove('valid', 'invalid');
+          emailFeedback.style.display = 'none';
+          emailFeedback.textContent = '';
+        } else if (validateEmail(val)) {
+          emailInput.classList.add('valid');
+          emailInput.classList.remove('invalid');
+          emailFeedback.style.color = '#3a9d3a';
+          emailFeedback.textContent = 'Valid email ✔';
+          emailFeedback.style.display = 'block';
+        } else {
+          emailInput.classList.add('invalid');
+          emailInput.classList.remove('valid');
+          emailFeedback.style.color = '#d05858';
+          emailFeedback.textContent = 'Invalid email ✘';
+          emailFeedback.style.display = 'block';
+        }
+        updateSaveButton();
+      });
+
+      // Name input live validation
+      nameInput.addEventListener('input', () => {
+        if (nameInput.value.trim().length > 0 && nameInput.value.trim().length <= 50) {
+          nameInput.classList.add('valid');
+          nameInput.classList.remove('invalid');
+        } else {
+          nameInput.classList.add('invalid');
+          nameInput.classList.remove('valid');
+        }
+        updateSaveButton();
+      });
+
+      // Dark mode toggle handler
+      darkModeToggle.addEventListener('change', () => {
+        if (darkModeToggle.checked) {
+          body.classList.add('dark');
+        } else {
+          body.classList.remove('dark');
+        }
+      });
+
+      // Form submission handler with simulated loading & validation
+      profileForm.addEventListener('submit', e => {
+        e.preventDefault();
+        formMessage.textContent = '';
+        formMessage.classList.remove('show');
+        formMessage.style.color = '';
+
+        // Final validation check
+        if (!checkFormValidity()) {
+          // Scroll to first invalid field
+          let firstInvalid = null;
+          if (!(nameInput.value.trim().length > 0 && nameInput.value.trim().length <= 50)) {
+            firstInvalid = nameInput;
+          } else if (!validateEmail(emailInput.value.trim())) {
+            firstInvalid = emailInput;
+          }
+          if (firstInvalid) {
+            firstInvalid.focus();
+            firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            formMessage.style.color = '#b45a82';
+            formMessage.textContent = 'Please fix the errors before saving.';
+            formMessage.classList.add('show');
+            return;
+          }
+        }
+
+        // Disable inputs and show spinner
+        saveBtn.disabled = true;
+        saveBtn.classList.add('loading');
+        saveBtn.querySelector('.spinner').style.display = 'block';
+
+        for (let el of profileForm.elements) {
+          if (el.tagName.toLowerCase() !== 'button') {
+            el.disabled = true;
+          }
+        }
+
+        // Simulate saving delay
+        setTimeout(() => {
+          saveBtn.disabled = false;
+          saveBtn.classList.remove('loading');
+          saveBtn.querySelector('.spinner').style.display = 'none';
+
+          for (let el of profileForm.elements) {
+            el.disabled = false;
+          }
+
+          formMessage.style.color = '#4a6fa5';
+          formMessage.textContent = 'Profile settings saved successfully!';
+          formMessage.classList.add('show');
+
+          // Auto fade message after 3 seconds
+          setTimeout(() => {
+            formMessage.classList.remove('show');
+          }, 3000);
+        }, 2000);
+      });
+
+      // Clear message, validation, and preview on reset
+      profileForm.addEventListener('reset', () => {
+        formMessage.textContent = '';
+        formMessage.classList.remove('show');
+        avatarPreview.src = "https://cdn-icons-png.flaticon.com/512/149/149071.png"; // reset avatar preview
+        darkModeToggle.checked = false;
+        body.classList.remove('dark');
+
+        // Reset validation styles
+        nameInput.classList.remove('valid', 'invalid');
+        emailInput.classList.remove('valid', 'invalid');
+        emailFeedback.style.display = 'none';
+        emailFeedback.textContent = '';
+        bioCounter.textContent = '0 / 250';
+
+        saveBtn.disabled = true;
+      });
+
+      // Update Save button on initial load and other inputs
+      updateSaveButton();
+
+      // Allow upload-label keyboard accessibility triggering
+      document.querySelector('.upload-label').addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          avatarInput.click();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>View Profile</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
+  body {
+    margin: 0;
+    font-family: 'Montserrat', sans-serif;
+    background: linear-gradient(135deg, #d0e7f9 0%, #f9d0e2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 20px 60px;
+    color: #4a6fa5;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  .container {
+    background: rgba(255,255,255,0.9);
+    padding: 40px 50px;
+    border-radius: 20px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .floral-decoration {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 140px;
+    height: 140px;
+    background: radial-gradient(circle at center, #f9d0e2, transparent 75%);
+    border-radius: 50%;
+    filter: blur(18px);
+    z-index: 0;
+  }
+
+  h1 {
+    font-weight: 700;
+    font-size: 2.8rem;
+    margin-bottom: 10px;
+    color: #b45a82;
+    user-select: text;
+  }
+
+  .avatar {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    border: 4px solid #b45a82;
+    object-fit: cover;
+    box-shadow: 0 4px 15px rgba(180, 90, 130, 0.45);
+    margin: 15px auto 30px;
+    transition: border-color 0.4s ease;
+  }
+
+  .profile-info {
+    font-weight: 600;
+    font-size: 1.2rem;
+    margin-bottom: 40px;
+    color: #4a6fa5;
+    user-select: text;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(140px,1fr));
+    gap: 24px;
+    margin-bottom: 40px;
+  }
+
+  .stat-box {
+    background: #f9d0e2;
+    border-radius: 15px;
+    padding: 22px 18px;
+    box-shadow: 0 6px 18px rgb(180 90 130 / 0.35);
+    color: #9a3678;
+    font-weight: 700;
+    font-size: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    user-select: none;
+    position: relative;
+    transition: background-color 0.3s ease;
+  }
+
+  .stat-box span.label {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-top: 8px;
+    user-select: text;
+  }
+
+  .stat-box.overdue {
+    background: #ffd6d6;
+    color: #c02f34;
+    box-shadow: 0 6px 18px rgb(192 47 52 / 0.45);
+  }
+
+  .stat-box.completed {
+    background: #c3e7bc;
+    color: #2d632d;
+    box-shadow: 0 6px 18px rgb(45 99 45 / 0.45);
+  }
+
+  .stat-box.rate {
+    background: #adc6e1;
+    color: #2a407e;
+    box-shadow: 0 6px 18px rgba(42, 64, 126, 0.4);
+  }
+
+  .buttons {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  button {
+    background: #4a6fa5;
+    color: #f9d0e2;
+    border: none;
+    padding: 14px 36px;
+    border-radius: 35px;
+    font-weight: 700;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(74, 111, 165, 0.8);
+    transition: background-color 0.3s ease, transform 0.15s ease;
+    user-select: none;
+    min-width: 140px;
+    position: relative;
+  }
+
+  button:hover {
+    background: #314d75;
+    transform: scale(1.05);
+  }
+
+  .message {
+    margin-top: 22px;
+    font-weight: 600;
+    font-size: 1rem;
+    color: #b45a82;
+    user-select: none;
+    min-height: 1.3em;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+
+  .message.show {
+    opacity: 1;
+  }
+
+  /* Modal background overlay */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0,0,0,0.35);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    overflow-y: auto;
+    transition: opacity 0.3s ease;
+  }
+  .modal-overlay.active {
+    display: flex;
+    opacity: 1;
+  }
+
+  /* Modal box */
+  .modal {
+    background: white;
+    border-radius: 18px;
+    padding: 30px 35px;
+    max-width: 360px;
+    width: 90%;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+    text-align: center;
+    position: relative;
+    user-select: none;
+    animation: modalFadeIn 0.3s ease forwards;
+  }
+
+  @keyframes modalFadeIn {
+    from { opacity: 0; transform: translateY(-15px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .modal h2 {
+    margin: 0 0 16px;
+    font-weight: 700;
+    font-size: 1.6rem;
+    color: #2a407e;
+  }
+
+  .modal p {
+    font-size: 1.1rem;
+    margin-bottom: 32px;
+    color: #444;
+  }
+
+  .modal button {
+    min-width: 120px;
+    font-size: 1rem;
+    padding: 10px 24px;
+  }
+
+  .modal-buttons {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  /* Accessibility focus styling */
+  .modal button:focus {
+    outline: 3px solid #4a6fa5;
+    outline-offset: 3px;
+  }
+
+</style>
+</head>
+<body>
+  <div class="floral-decoration" aria-hidden="true"></div>
+  <div class="container" role="main" aria-label="User Profile Information and Performance">
+    <h1>Your Profile</h1>
+    <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="User Avatar" class="avatar" id="avatar" />
+    <div class="profile-info" id="profileName">Name: <span>Loading...</span></div>
+    <div class="profile-info" id="profileEmail">Email: <span>Loading...</span></div>
+
+    <div class="stats-grid" aria-live="polite" aria-atomic="true">
+      <div class="stat-box completed" id="tasksDone">
+        0
+        <span class="label">Tasks Done</span>
+      </div>
+      <div class="stat-box overdue" id="tasksOverdue">
+        0
+        <span class="label">Tasks Overdue</span>
+      </div>
+      <div class="stat-box rate" id="completionRate">
+        0%
+        <span class="label">Avg Completion Rate</span>
+      </div>
+    </div>
+
+    <div class="buttons">
+      <button id="refreshBtn" aria-label="Refresh Task Statistics">Refresh Stats</button>
+      <button id="editProfileBtn" aria-label="Edit Profile Settings">Edit Profile</button>
+    </div>
+
+    <div class="message" id="msg" aria-live="assertive" role="alert"></div>
+  </div>
+
+  <!-- Modal HTML -->
+  <div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalDesc">
+    <div class="modal" tabindex="0">
+      <h2 id="modalTitle">Edit Profile</h2>
+      <p id="modalDesc">You can edit your profile in the Account Settings section.</p>
+      <div class="modal-buttons">
+        <button id="goToAccountSettings">Go to Account Settings</button>
+        <button id="cancelModal">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  (() => {
+    const avatar = document.getElementById('avatar');
+    const profileName = document.querySelector('#profileName span');
+    const profileEmail = document.querySelector('#profileEmail span');
+    const tasksDoneElem = document.getElementById('tasksDone');
+    const tasksOverdueElem = document.getElementById('tasksOverdue');
+    const completionRateElem = document.getElementById('completionRate');
+    const msg = document.getElementById('msg');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const editProfileBtn = document.getElementById('editProfileBtn');
+
+    // Modal Elements
+    const modalOverlay = document.getElementById('modalOverlay');
+    const goToAccountSettingsBtn = document.getElementById('goToAccountSettings');
+    const cancelModalBtn = document.getElementById('cancelModal');
+    const focusableElementsString = 'a[href], area[href], input:not([disabled]), select:not([disabled]),' +
+      'textarea:not([disabled]), button:not([disabled]), iframe, object, embed, [tabindex="0"],' +
+      '[contenteditable]';
+
+    let lastFocusedElement; // for focus return after modal close
+
+    // Load user profile info (use local storage or placeholders)
+    function loadUserProfile() {
+      const name = localStorage.getItem('userName') || 'Student User';
+      const email = localStorage.getItem('userEmail') || 'student@example.com';
+      const photo = localStorage.getItem('userPhoto') || 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+      profileName.textContent = name;
+      profileEmail.textContent = email;
+      avatar.src = photo;
+      avatar.alt = `Avatar of ${name}`;
+    }
+
+    // Load tasks from localStorage
+    function getTasks() {
+      const tasksJson = localStorage.getItem('tasks');
+      if (!tasksJson) return [];
+      try {
+        return JSON.parse(tasksJson);
+      } catch {
+        return [];
+      }
+    }
+
+    // Calculate overdue tasks (deadline < today and not done)
+    function calculateOverdue(tasks) {
+      const now = new Date();
+      return tasks.filter(task => !task.done && new Date(task.deadline) < startOfDay(now)).length;
+    }
+
+    // Normalize date to start of day
+    function startOfDay(date) {
+      return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    }
+
+    // Calculate tasks done count
+    function countDone(tasks) {
+      return tasks.filter(task => task.done).length;
+    }
+
+    // Calculate average completion rate as percentage
+    function averageCompletionRate(tasks) {
+      if (tasks.length === 0) return 0;
+      return Math.round((countDone(tasks) / tasks.length) * 100);
+    }
+
+    function updateStats() {
+      const tasks = getTasks();
+      const done = countDone(tasks);
+      const overdue = calculateOverdue(tasks);
+      const rate = averageCompletionRate(tasks);
+
+      fadeOutIn(tasksDoneElem, done);
+      fadeOutIn(tasksOverdueElem, overdue);
+      fadeOutIn(completionRateElem, rate + '%');
+
+      announce(`Stats updated: ${done} tasks done, ${overdue} overdue, average completion ${rate} percent.`);
+    }
+
+    // Animation helper to fade numbers
+    function fadeOutIn(element, newText) {
+      element.style.opacity = 0;
+      setTimeout(() => {
+        element.childNodes[0].nodeValue = newText;
+        element.style.opacity = 1;
+      }, 300);
+    }
+
+    // Simple live region announcement
+    function announce(message) {
+      msg.textContent = '';
+      setTimeout(() => {
+        msg.textContent = message;
+      }, 200);
+    }
+
+    refreshBtn.addEventListener('click', () => {
+      updateStats();
+      refreshBtn.blur();
+    });
+
+    // Open Modal
+    editProfileBtn.addEventListener('click', () => {
+      openModal();
+    });
+
+    // Modal functions
+    function openModal() {
+      lastFocusedElement = document.activeElement;
+      modalOverlay.classList.add('active');
+      modalOverlay.querySelector('.modal').focus();
+      document.body.style.overflow = 'hidden';
+      trapFocus(modalOverlay);
+    }
+    function closeModal() {
+      modalOverlay.classList.remove('active');
+      document.body.style.overflow = '';
+      if(lastFocusedElement) lastFocusedElement.focus();
+      releaseFocusTrap();
+    }
+
+    // Trap focus within modal for accessibility
+    let focusableElements = [];
+    let firstFocusable;
+    let lastFocusable;
+
+    function trapFocus(element) {
+      focusableElements = element.querySelectorAll(focusableElementsString);
+      if(focusableElements.length === 0) return;
+      firstFocusable = focusableElements[0];
+      lastFocusable = focusableElements[focusableElements.length -1];
+
+      element.addEventListener('keydown', handleTrapFocus);
+    }
+
+    function releaseFocusTrap() {
+      modalOverlay.removeEventListener('keydown', handleTrapFocus);
+    }
+
+    function handleTrapFocus(e) {
+      if(e.key === 'Tab') {
+        if(e.shiftKey) {
+          if(document.activeElement === firstFocusable) {
+            e.preventDefault();
+            lastFocusable.focus();
+          }
+        } else {
+          if(document.activeElement === lastFocusable) {
+            e.preventDefault();
+            firstFocusable.focus();
+          }
+        }
+      }
+      if(e.key === 'Escape') {
+        closeModal();
+      }
+    }
+
+    // Modal button listeners
+    goToAccountSettingsBtn.addEventListener('click', () => {
+      closeModal();
+      window.location.href = 'profile.html'; // adjust if needed
+    });
+
+    cancelModalBtn.addEventListener('click', () => {
+      closeModal();
+    });
+
+    // Close modal when clicking outside modal content
+    modalOverlay.addEventListener('click', (e) => {
+      if(e.target === modalOverlay){
+        closeModal();
+      }
+    });
+
+    // ESC key already handled in trapFocus
+
+    // Initialization on page load
+    function init() {
+      loadUserProfile();
+      updateStats();
+    }
+
+    init();
+  })();
+</script>
+</body>
+</html>
